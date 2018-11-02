@@ -1,5 +1,4 @@
 import { Router, Request, Response } from 'express'
-import * as Path from 'path'
 import { InMemoryStore } from '../stores/in_memory'
 
 const router: Router = Router();
