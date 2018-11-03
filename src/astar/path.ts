@@ -29,7 +29,6 @@ export function findPath(grid: Node[][], cost: number[][], is: number, js: numbe
 
       // Let's assume the cost to hop from current to neighbor is 1 without any obstacles
       const tempG: number = current.gScore + cost[neighbor.i][neighbor.j]
-
       // Do nothing if neighbor is already in queue and it has better or equivalent g score.
       if (queue.has(neighbor) && neighbor.gScore <= tempG) {
         return
@@ -53,10 +52,11 @@ export function findPath(grid: Node[][], cost: number[][], is: number, js: numbe
 function getMin(set: Set<Node>, ig: number, jg: number): Node {
   const nodes = Array.from(set.values())
   
-  let min: Node = nodes[0]
+  let min: Node
   let minF: number
   nodes.forEach((node) => {
     if (!min) {
+      minF = node.getFScore(ig, jg)
       min = node
       return
     }

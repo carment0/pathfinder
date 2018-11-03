@@ -5,10 +5,19 @@ import Grid from './grid'
 import './app.scss'
 
 class App extends React.Component<any, any> {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      paths: []
+    }
+  }
 
   private handleFetchPath = () => {
     axios.get("/api/paths").then((res: AxiosResponse) => {
-      console.log(res.data)
+      this.setState({
+        paths: res.data.path
+      })
     }).catch((err) => {
       console.log(err.response.data.error)
     })
@@ -24,7 +33,7 @@ class App extends React.Component<any, any> {
   render() {
     return (
       <section className="app">
-        <Grid row={50} col={50} poses={this.poses} />
+        <Grid row={50} col={50} poses={this.poses} paths={this.state.paths}/>
         <button onClick={this.handleFetchPath}>Find Path!</button>
       </section>
     )

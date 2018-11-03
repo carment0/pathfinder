@@ -6,7 +6,8 @@ import './grid.scss'
 type GridProps = {
   row: number,
   col: number,
-  poses: any
+  poses: any,
+  paths: number[][]
 }
 
 type GridState = {
@@ -42,6 +43,16 @@ class Grid extends React.Component<GridProps, GridState> {
   }
 
   get rows(): JSX.Element[] {
+    // Convert array to map for fast indexing
+    const pathMap: Map<number, Set<number>> = new Map<number, Set<number>>()
+    this.props.paths.forEach((path) => {
+      if (!pathMap.get(path[0])) {
+        pathMap.set(path[0], new Set<number>())
+      }
+
+      pathMap.get(path[0]).add(path[1])
+    })
+
     const start = this.props.poses.start
     const goal = this.props.poses.goal
 
@@ -50,11 +61,13 @@ class Grid extends React.Component<GridProps, GridState> {
       const row: JSX.Element[] = [] 
       for (let j = 0; j < this.props.col; j++) {
         if (start.i == i && start.j == j) {
-          row.push(<Tile i={i} j={j} key={`${i},${j}`} start={true} goal={false} />)
+          row.push(<Tile i={i} j={j} key={`${i},${j}`} start={true} goal={false} path={false}/>)
         } else if (goal.i == i && goal.j == j) {
-          row.push(<Tile i={i} j={j} key={`${i},${j}`} start={false} goal={true} />)
+          row.push(<Tile i={i} j={j} key={`${i},${j}`} start={false} goal={true} path={false} />)
+        } else if (pathMap.get(i) && pathMap.get(i).has(j)) {
+          row.push(<Tile i={i} j={j} key={`${i},${j}`} start={false} goal={false} path={true} />)
         } else {
-          row.push(<Tile i={i} j={j} key={`${i},${j}`} start={false} goal={false} />)
+          row.push(<Tile i={i} j={j} key={`${i},${j}`} start={false} goal={false} path={false} />)
         }
       }
 
