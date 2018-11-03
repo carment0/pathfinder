@@ -1,10 +1,11 @@
 import express from 'express'
-import { FooController } from './controllers';
+import { FooController, PathController } from './controllers';
 import { InMemoryStore } from './stores/in_memory';
 
 function configRoute(app: express.Application) {
   app.use(express.static('public'))
-  app.use('/foo', FooController)
+  app.use('/api/foo', FooController)
+  app.use('/api/paths', PathController)
   
   InMemoryStore.set("user", 0)
 }
