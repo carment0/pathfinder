@@ -4,9 +4,10 @@
   "description": "",
   "main": "main.ts",
   "scripts": {
+    "prestart": "npm install",
+    "start": "ts-node ./src/index.ts",
     "build:ui": "webpack --watch",
-    "build:server": "tsc ./src",
-    "start:server": "ts-node ./src/index.ts"
+    "build:server": "tsc ./src"
   },
   "keywords": [],
   "author": "",
