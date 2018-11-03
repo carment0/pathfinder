@@ -1,43 +1,14 @@
-class Node {
-  public src: Node | null
-  public gScore: number
-  public i: number
-  public j: number
-
-  constructor(i: number, j: number) {
-    this.src = null
-    this.gScore = Infinity
-    this.i = i
-    this.j = j    
-  }
-
-  public getFScore(ig: number, jg: number): number {
-    return this.gScore + this.getHeuristic(ig, jg)
-  }
-
-  public isGoal(ig: number, jg: number): boolean {
-    return this.i === ig && this.j === jg 
-  }
-
-  /**
-   * getHeuristic computes heuristic with Manhattan distance.
-   * @param ig Short for i_goal
-   * @param jg Short for j_goal
-   */
-  public getHeuristic(ig: number, jg: number): number {
-    return Math.abs(ig - this.i) + Math.abs(jg - this.j)
-  }  
-}
+import { Node } from './node'
 
 /**
- * findPath uses A* algorithm
+ * findPath uses A* algorithm to seek a path from source to goal.
  * @param grid 
  * @param is : Short for i_source or i_start
  * @param js : Short for j_source or j_start
  * @param ig : Short for i_goal
  * @param jg : Short for j_goal
  */
-function findPath(grid: Node[][], is: number, js: number, ig: number, jg: number): number[][] {
+export function findPath(grid: Node[][], cost: number[][], is: number, js: number, ig: number, jg: number): number[][] {
   const queue: Set<Node> = new Set<Node>()
   const visited: Set<Node> = new Set<Node>()
   grid[is][js].gScore = 0
@@ -57,9 +28,10 @@ function findPath(grid: Node[][], is: number, js: number, ig: number, jg: number
       }
 
       // Let's assume the cost to hop from current to neighbor is 1 without any obstacles
-      const tempG: number = current.gScore + 1 
+      const tempG: number = current.gScore + cost[neighbor.i][neighbor.j]
+
+      // Do nothing if neighbor is already in queue and it has better or equivalent g score.
       if (queue.has(neighbor) && neighbor.gScore <= tempG) {
-        // Do nothing if neighbor is already in queue and it has better or equivalent g score.
         return
       }
 
@@ -100,14 +72,14 @@ function getMin(set: Set<Node>, ig: number, jg: number): Node {
 
 function getNeighbors(grid: Node[][], current: Node): Node[] {
   const neighbors: Node[] = []
-
+  
   // Up
-  if (grid[current.i-1][current.j]) {
+  if (grid[current.i-1]) {
     neighbors.push(grid[current.i-1][current.j])
   }
 
   // Down
-  if (grid[current.i+1][current.j]) {
+  if (grid[current.i+1]) {
     neighbors.push(grid[current.i+1][current.j])
   }
 
