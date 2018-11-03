@@ -15,11 +15,11 @@ router.post('/', (req: Request, res: Response) => {
     return
   }
 
-  const map: Node[][] = []
+  const grid: Node[][] = []
   for (let i = 0; i < row; i++) {
-    map[i] = []
+    grid[i] = []
     for (let j = 0; j < col; j++) {
-      map[i].push(new Node(i, j))
+      grid[i].push(new Node(i, j))
     }
   }
 
@@ -32,7 +32,7 @@ router.post('/', (req: Request, res: Response) => {
   }
 
   InMemoryStore.set("dim", { row, col })
-  InMemoryStore.set("map", map)
+  InMemoryStore.set("grid", grid)
   InMemoryStore.set("cost", cost)
   
   res.status(201)
@@ -42,9 +42,9 @@ router.post('/', (req: Request, res: Response) => {
 router.post('/poses', (req: Request, res: Response) => {
   res.setHeader('content-type', 'application/json');
   
-  if (!InMemoryStore.get("map")) {
+  if (!InMemoryStore.get("grid")) {
     res.status(422)
-    res.send({error: "please instantiate a map first"})
+    res.send({error: "please instantiate a grid first"})
     return
   }
 
@@ -75,12 +75,12 @@ function outBound(i: number, j:number, row: number, col: number) {
   return (i < 0 || row <= i) || (j < 0 || col <= j) 
 }
 
-router.post("/obstacles",  (req: Request, res: Response) => {
+router.post("/costs",  (req: Request, res: Response) => {
   res.setHeader('content-type', 'application/json');
 
-  if (!InMemoryStore.get("map")) {
+  if (!InMemoryStore.get("grid")) {
     res.status(422)
-    res.send({error: "please instantiate a map first"})
+    res.send({error: "please instantiate a grid first"})
     return
   }
 
@@ -107,4 +107,4 @@ router.post("/obstacles",  (req: Request, res: Response) => {
   res.send({ i, j })
 })
 
-export const MapController: Router = router;
+export const GridController: Router = router;

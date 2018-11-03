@@ -1,13 +1,13 @@
 import express from 'express'
 import bodyParser from 'body-parser'
-import { PathController, MapController } from './controllers';
+import { PathController, GridController } from './controllers';
 import { InMemoryStore } from './stores/in_memory';
 
 function configRoute(app: express.Application) {
   app.use(express.static('public'))
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
-  app.use('/api/maps', MapController)
+  app.use('/api/grids', GridController)
   app.use('/api/paths', PathController)
   
   InMemoryStore.set("user", 0)

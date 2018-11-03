@@ -1,2 +1,2 @@
 export * from './path.controller'
-export * from './map.controller'
+export * from './grid.controller'

@@ -1,0 +1,17 @@
+.tile {
+  height: 15px;
+  width: 15px;
+  border: 0.5px solid;
+}
+
+.start {
+  background: black;
+}
+
+.goal {
+  background: green;
+}
+
+.obstacle {
+  background: red;
+}
