@@ -1,2 +1,2 @@
-export * from './foo.controller'
 export * from './path.controller'
+export * from './map.controller'

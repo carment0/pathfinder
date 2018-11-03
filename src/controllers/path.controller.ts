@@ -1,31 +1,30 @@
 import { Router, Request, Response } from 'express'
 import { Node, findPath } from '../astar'
+import { InMemoryStore } from '../stores/in_memory';
 
 const router: Router = Router()
 
 router.get('/', (req: Request, res: Response) => {
   res.setHeader('content-type', 'application/json')
-  const grid: Node[][] = []
-  for (let i = 0; i < 100; i++) {
-    grid[i] = []
-    for (let j = 0; j < 100; j++) {
-      grid[i].push(new Node(i, j))
-    }
-  }
-
-  const cost: number[][] = []
-  for (let i = 0; i < 100; i++) {
-    cost[i] = []
-    for (let j = 0; j < 100; j++) {
-      if (j === 0 && i > 5) {
-        cost[i].push(20)
-      } else {
-        cost[i].push(1)
-      }
-    }
+  if (!InMemoryStore.get("map")) {
+    res.status(422)
+    res.send({error: "please instantiate a map first"})
+    return
   }
   
-  const path: number[][] = findPath(grid, cost, 0, 0, 55, 55)
+  const map: Node[][] = InMemoryStore.get("map")
+  const cost: number[][] = InMemoryStore.get("cost")
+  
+  if (!InMemoryStore.get("poses")) {
+    res.status(422)
+    res.send({error: "please create poses first"})
+    return
+  }
+
+  const poses = InMemoryStore.get("poses")
+
+  // Grid is synonymous to map in this context
+  const path: number[][] = findPath(map, cost, poses.is, poses.js, poses.ig, poses.jg)
   res.send({ "steps": path.length, "path": path })
 });
 
