@@ -11,7 +11,7 @@ router.post('/', (req: Request, res: Response) => {
   const col: number = req.body["col"]
   if (row === undefined || col === undefined) {
     res.status(422)
-    res.send({error: "row & column are required"})
+    res.send({error: "row & col are required"})
     return
   }
 
@@ -19,7 +19,7 @@ router.post('/', (req: Request, res: Response) => {
   for (let i = 0; i < row; i++) {
     grid[i] = []
     for (let j = 0; j < col; j++) {
-      grid[i].push(new Node(i, j))
+      grid[i].push(new Node({i, j}))
     }
   }
 
@@ -37,38 +37,6 @@ router.post('/', (req: Request, res: Response) => {
   
   res.status(201)
   res.send({ row, col })
-})
-
-router.post('/poses', (req: Request, res: Response) => {
-  res.setHeader('content-type', 'application/json');
-  
-  if (!InMemoryStore.get("grid")) {
-    res.status(422)
-    res.send({error: "please instantiate a grid first"})
-    return
-  }
-
-  const is: number = req.body["i_start"]
-  const js: number = req.body["j_start"]
-  const ig: number = req.body["i_goal"]
-  const jg: number = req.body["j_goal"]
-  if (is === undefined || js === undefined || ig === undefined || jg == undefined) {
-    res.status(422)
-    res.send({error: "indices i_start, j_start, i_goal, and j_goal are required"})
-    return
-  }
-
-  const dim = InMemoryStore.get("dim")
-  if (outBound(is, js, dim.row, dim.col) || outBound(ig, jg, dim.row, dim.col)) {
-    res.status(422)
-    res.send({error: "indices are out of bound"})
-    return
-  }
-
-  InMemoryStore.set("poses", { is, js, ig, jg })
-
-  res.status(201)
-  res.send({ i_start: is, j_start: js, i_goal: ig, j_goal: jg })
 })
 
 function outBound(i: number, j:number, row: number, col: number) {

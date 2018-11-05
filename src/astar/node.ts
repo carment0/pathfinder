@@ -1,22 +1,29 @@
+export interface Coordinate {
+  i: number
+  j: number
+}
+
 export class Node {
+  public coord: Coordinate
   public src: Node | null
   public gScore: number
-  public i: number
-  public j: number
 
-  constructor(i: number, j: number) {
+  constructor(c: Coordinate) {
     this.src = null
     this.gScore = Infinity
-    this.i = i
-    this.j = j    
+    this.coord = c
   }
 
-  public getFScore(ig: number, jg: number): number {
-    return this.gScore + this.getHeuristic(ig, jg)
+  public getFScore(goal: Coordinate): number {
+    return this.gScore + this.getHeuristic(goal)
   }
 
-  public isGoal(ig: number, jg: number): boolean {
-    return this.i === ig && this.j === jg 
+  /**
+   * Compares whether this coordinate is equivalent to another coordinate.
+   * @param other
+   */
+  public is(other: Coordinate): boolean {
+    return this.coord.i == other.i && this.coord.j === other.j 
   }
 
   /**
@@ -24,8 +31,8 @@ export class Node {
    * @param ig Short for i_goal
    * @param jg Short for j_goal
    */
-  public getHeuristic(ig: number, jg: number): number {
-    return Math.abs(ig - this.i) + Math.abs(jg - this.j)
+  public getHeuristic(goal: Coordinate): number {
+    return Math.abs(goal.i - this.coord.i) + Math.abs(goal.j - this.coord.j)
   }
 }
   
