@@ -23,17 +23,18 @@ class App extends React.Component<any, any> {
     })
   }
 
-  get poses() {
-    return {
-      start: {i: 0, j: 0},
-      goal: {i: 30, j: 45}
-    }
+  get start() {
+    return { i: 0, j: 0 }
+  }
+
+  get goal() {
+    return { i: 30, j: 45 }
   }
 
   render() {
     return (
       <section className="app">
-        <Grid row={50} col={50} poses={this.poses} paths={this.state.paths}/>
+        <Grid row={50} col={50} start={this.start} goal={this.goal} paths={this.state.paths}/>
         <button onClick={this.handleFetchPath}>Find Path!</button>
       </section>
     )

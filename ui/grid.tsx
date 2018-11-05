@@ -1,38 +1,68 @@
 import * as React from 'react'
-import Tile from './tile'
+import { Tile, TileType } from './tile'
 import axios from 'axios'
 import './grid.scss'
 
 type GridProps = {
   row: number,
   col: number,
-  poses: any,
+  start: any,
+  goal: any,
   paths: number[][]
 }
 
 type GridState = {
-  display: boolean
+  display: boolean,
+  connected: boolean,
+  obstacleMap: boolean[][]
 }
 
 class Grid extends React.Component<GridProps, GridState> {
+  private ws: WebSocket
+  private obstacleMap: boolean[][]
+  
   constructor(props: any) {
     super(props)
 
+    const obstacleMap: boolean[][] = []
+    for (let i = 0; i < this.props.row; i++) {
+      const row: boolean[] = []
+      for (let j = 0; j < this.props.col; j++) {
+        row.push(false)
+      }
+  
+      obstacleMap.push(row)
+    }
+
     this.state = {
-      display: false
+      display: false,
+      connected: false,
+      obstacleMap
+    }
+  }
+
+  private connectWebSocket = () => {
+    this.ws = new WebSocket('ws://localhost:3000/api/costs')
+    this.ws.onopen = () => this.setState({connected: true})
+    this.ws.onclose = () => this.setState({connected: false})
+    this.ws.onmessage = (msg: MessageEvent) => {
+      const coord = JSON.parse(msg.data)
+      const obstacleMap = this.state.obstacleMap
+      obstacleMap[coord.i][coord.j] = true
+      this.setState({obstacleMap})
     }
   }
 
   componentDidMount() {
-    const start = this.props.poses.start
-    const goal = this.props.poses.goal
-
     axios.post("/api/grids", {
       row: this.props.row,
       col: this.props.col
     })
     .then(() => {
-      return axios.post("/api/grids/poses", {i_start: start.i, j_start: start.j, i_goal: goal.i, j_goal: goal.j})
+      return axios.post("/api/paths/start", this.props.start)
+    })
+    .then(() => {
+      return axios.post("/api/paths/goal", this.props.goal)
     })
     .then(() => {
       this.setState({display: true})
@@ -40,6 +70,8 @@ class Grid extends React.Component<GridProps, GridState> {
     .catch((err) => {
       console.log(err.response.data.error)
     })
+
+    this.connectWebSocket()
   }
 
   get rows(): JSX.Element[] {
@@ -53,24 +85,24 @@ class Grid extends React.Component<GridProps, GridState> {
       pathMap.get(path[0]).add(path[1])
     })
 
-    const start = this.props.poses.start
-    const goal = this.props.poses.goal
-
     const rows: JSX.Element[] = [];
     for (let i = 0; i < this.props.row; i++) {
       const row: JSX.Element[] = [] 
-      for (let j = 0; j < this.props.col; j++) {
-        if (start.i == i && start.j == j) {
-          row.push(<Tile i={i} j={j} key={`${i},${j}`} start={true} goal={false} path={false}/>)
-        } else if (goal.i == i && goal.j == j) {
-          row.push(<Tile i={i} j={j} key={`${i},${j}`} start={false} goal={true} path={false} />)
+      for (let j = 0; j < this.props.col; j++) {        
+        let type:number = TileType.Unoccupied
+        if (this.props.start.i === i && this.props.start.j === j) {
+          type = TileType.Start
+        } else if (this.props.goal.i === i && this.props.goal.j === j) {
+          type = TileType.Goal
         } else if (pathMap.get(i) && pathMap.get(i).has(j)) {
-          row.push(<Tile i={i} j={j} key={`${i},${j}`} start={false} goal={false} path={true} />)
-        } else {
-          row.push(<Tile i={i} j={j} key={`${i},${j}`} start={false} goal={false} path={false} />)
+          type = TileType.Path
+        } else if (this.state.obstacleMap[i][j]) {
+          type = TileType.Obstacle
         }
+        
+        row.push(<Tile i={i} j={j} key={`${i},${j}`} type={type} ws={this.ws} />)
       }
-
+      
       rows.push(<div className="row" key={`row-${i}`}>{row}</div>)
     }
 
